@@ -2,28 +2,10 @@
 
 import { createContext, useContext, useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
+import { DEMO_USERS } from "../constants/demoUsers"
 
 // Create the auth context
-export const AuthContext = createContext()
-
-// Demo users data
-const DEMO_USERS = [
-  {
-    id: "1",
-    username: "admin@srms.edu",
-    password: "admin123",
-    role: "administrator",
-    name: "Administrator",
-  },
-  {
-    id: "2",
-    username: "student@srms.edu",
-    password: "student123",
-    role: "student",
-    name: "John Doe",
-    studentId: "STU001",
-  },
-]
+const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
@@ -36,31 +18,59 @@ export function AuthProvider({ children }) {
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser))
-      } catch (error) {
+      } catch (err) {
+        console.error("Error parsing user data:", err)
         localStorage.removeItem("srms_user")
       }
     }
     setIsLoading(false)
   }, [])
 
-  const login = async (email, password) => {
-    const demoUser = DEMO_USERS.find((u) => u.username === email && u.password === password)
+  const login = async (identifier, password) => {
+    // Check demo users first
+    let userData = DEMO_USERS.find(u => 
+      (u.username === identifier || u.studentId === identifier) && 
+      u.password === password
+    );
 
-    if (demoUser) {
-      const userData = {
-        id: demoUser.id,
-        username: demoUser.username,
-        role: demoUser.role,
-        name: demoUser.name,
-        studentId: demoUser.studentId,
+    // If not found in demo users, check registered students
+    if (!userData) {
+      const registeredStudents = JSON.parse(localStorage.getItem('srms_students') || '[]');
+      const student = registeredStudents.find(s => 
+        (s.email === identifier || s.studentId === identifier) && 
+        s.password === password
+      );
+
+      if (student) {
+        userData = {
+          id: student.id || `stu_${Date.now()}`,
+          username: student.email,
+          email: student.email,
+          role: 'student',
+          name: `${student.firstName} ${student.lastName}`,
+          studentId: student.studentId,
+          program: student.program
+        };
       }
-
-      localStorage.setItem("srms_user", JSON.stringify(userData))
-      setUser(userData)
-      return true
+    } else {
+      // Format demo user data to match our structure
+      userData = {
+        id: userData.id,
+        username: userData.username,
+        email: userData.username, // Using username as email for demo users
+        role: userData.role,
+        name: userData.name,
+        studentId: userData.studentId
+      };
     }
 
-    return false
+    if (userData) {
+      localStorage.setItem("srms_user", JSON.stringify(userData));
+      setUser(userData);
+      return true;
+    }
+
+    return false;
   }
 
   const logout = () => {
@@ -71,7 +81,9 @@ export function AuthProvider({ children }) {
 
   const value = {
     user,
-    isLoading,
+    currentUser: user,
+    loading: isLoading,
+    isLoading, // Add both for compatibility
     isAuthenticated: !!user,
     login,
     logout,
@@ -81,9 +93,11 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider")
+    throw new Error("useAuth must be used within an AuthProvider");
   }
-  return context
+  return context;
 }
+
+// Only export the hook and provider, not the context directly

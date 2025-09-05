@@ -1,229 +1,201 @@
-import React, { useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { GraduationCap, Eye, EyeOff } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { GraduationCap, Eye, EyeOff, User, Lock, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, user } = useAuth();
+  const { login, currentUser, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || '/dashboard';
 
-  if (user) {
-    return <Navigate to="/dashboard" replace />;
-  }
+  useEffect(() => {
+    // Clear any previous error messages on mount
+    setError('');
+    
+    // If there's a message in location state, show it
+    if (location.state?.message) {
+      setError(location.state.message);
+      // Clear the message from state to prevent showing it again on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
+    setError('');
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate("/dashboard");
+      const isLoggedIn = await login(identifier, password);
+      if (isLoggedIn) {
+        navigate(from, { replace: true });
       } else {
-        setError("Invalid email or password");
+        setError('Invalid credentials. Please check your student ID/email and password.');
       }
     } catch (err) {
-      setError("An error occurred during login");
+      console.error('Login error:', err);
+      setError('An error occurred during login. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
+  // Redirect if already authenticated
+  if (currentUser) {
+    return <Navigate to={from} replace />;
+  }
+  
+  // Show loading state while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '28rem',
-        background: 'white',
-        borderRadius: '0.5rem',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
-      }}>
-        <div style={{ textAlign: 'center', padding: '2rem 2rem 1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-            <div style={{ 
-              backgroundColor: '#2563eb', 
-              padding: '0.75rem', 
-              borderRadius: '9999px',
-              display: 'inline-flex'
-            }}>
-              <GraduationCap style={{ height: '2rem', width: '2rem', color: 'white' }} />
-            </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100">
+            <GraduationCap className="h-8 w-8 text-blue-600" />
           </div>
-          <h2 style={{
-            fontSize: '1.5rem',
-            lineHeight: '2rem',
-            fontWeight: '700',
-            marginBottom: '0.5rem',
-            color: '#1f2937'
-          }}>
-            Student Records Management
+          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+            Welcome Back
           </h2>
-          <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
-            Sign in to access your account
+          <p className="mt-2 text-sm text-gray-600">
+            Sign in to access your student portal
           </p>
         </div>
 
-        <div style={{ padding: '0 2rem 2rem' }}>
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded">
+            <div className="flex items-center">
+              <AlertCircle className="h-5 w-5 text-red-400 mr-3" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          </div>
+        )}
+
+        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          <div className="space-y-4">
             <div>
-              <label htmlFor="email" style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontSize: '0.875rem',
-                lineHeight: '1.25rem',
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Email
+              <label htmlFor="identifier" className="block text-sm font-medium text-gray-700 mb-1">
+                Student ID or Email
               </label>
-              <input
-                id="email"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.5rem 0.75rem',
-                  borderRadius: '0.375rem',
-                  border: '1px solid #d1d5db',
-                  fontSize: '0.875rem',
-                  lineHeight: '1.25rem',
-                  color: '#111827',
-                  backgroundColor: '#fff',
-                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                }}
-              />
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="identifier"
+                  name="identifier"
+                  type="text"
+                  required
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 sm:text-sm border border-gray-300 rounded-md"
+                  placeholder="STU123 or email@example.com"
+                  value={identifier}
+                  onChange={(e) => setIdentifier(e.target.value)}
+                  autoComplete="username"
+                />
+              </div>
             </div>
 
             <div>
-              <label htmlFor="password" style={{
-                display: 'block',
-                marginBottom: '0.5rem',
-                fontSize: '0.875rem',
-                lineHeight: '1.25rem',
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Password
-              </label>
-              <div style={{ position: 'relative' }}>
+              <div className="flex justify-between items-center mb-1">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Password
+                </label>
+                <a href="#" className="text-xs text-blue-600 hover:text-blue-500">
+                  Forgot password?
+                </a>
+              </div>
+              <div className="relative rounded-md shadow-sm">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-5 w-5 text-gray-400" />
+                </div>
                 <input
                   id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-10 py-2 sm:text-sm border border-gray-300 rounded-md"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  required
-                  style={{
-                    width: '100%',
-                    padding: '0.5rem 2.5rem 0.5rem 0.75rem',
-                    borderRadius: '0.375rem',
-                    border: '1px solid #d1d5db',
-                    fontSize: '0.875rem',
-                    lineHeight: '1.25rem',
-                    color: '#111827',
-                    backgroundColor: '#fff',
-                    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-                  }}
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  style={{
-                    position: 'absolute',
-                    right: '0',
-                    top: '0',
-                    height: '100%',
-                    padding: '0 0.75rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: '#6b7280'
-                  }}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-500"
+                  onClick={togglePasswordVisibility}
+                  tabIndex="-1"
                 >
-                  {showPassword ? 
-                    <EyeOff style={{ height: '1rem', width: '1rem' }} /> : 
-                    <Eye style={{ height: '1rem', width: '1rem' }} />
-                  }
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
                 </button>
               </div>
             </div>
+          </div>
 
-            {error && (
-              <div style={{
-                padding: '0.75rem',
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                borderRadius: '0.375rem',
-                color: '#b91c1c',
-                fontSize: '0.875rem',
-                lineHeight: '1.25rem'
-              }}>
-                {error}
-              </div>
-            )}
-
+          <div>
             <button
               type="submit"
               disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '0.5rem 1rem',
-                borderRadius: '0.375rem',
-                backgroundColor: '#2563eb',
-                color: 'white',
-                fontWeight: '500',
-                fontSize: '0.875rem',
-                lineHeight: '1.25rem',
-                border: 'none',
-                cursor: 'pointer',
-                opacity: isLoading ? '0.7' : '1',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => !isLoading && (e.target.style.backgroundColor = '#1d4ed8')}
-              onMouseOut={(e) => !isLoading && (e.target.style.backgroundColor = '#2563eb')}
+              className={`group relative w-full flex justify-center py-2.5 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                isLoading ? 'opacity-75 cursor-not-allowed' : ''
+              }`}
             >
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? (
+                <>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Signing in...
+                </>
+              ) : (
+                'Sign in to your account'
+              )}
             </button>
-          </form>
-
-          <div style={{
-            marginTop: '1.5rem',
-            padding: '1rem',
-            backgroundColor: '#f9fafb',
-            borderRadius: '0.5rem',
-            fontSize: '0.875rem',
-            lineHeight: '1.25rem'
-          }}>
-            <p style={{ fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-              Demo Accounts:
-            </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-              <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>
-                <strong>Administrator:</strong> admin@srms.edu / admin123
-              </p>
-              <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>
-                <strong>Student:</strong> student@srms.edu / student123
-              </p>
-            </div>
           </div>
+        </form>
+
+        <div className="text-center text-sm text-gray-600 mt-4">
+          Need help?{' '}
+          <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
+            Contact support
+          </a>
         </div>
       </div>
     </div>
