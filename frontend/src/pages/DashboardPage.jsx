@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
 import { GraduationCap, Users, FileText, BarChart3, LogOut, UserPlus, BookOpen } from "lucide-react"
-import { AuthGuard } from "../components/Authguard"
+import { AuthGuard } from "../components/Authguard.jsx"
 
 function DashboardContent() {
   const { user, logout } = useAuth()

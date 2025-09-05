@@ -1,7 +1,7 @@
 "use client"
 
 import { useNavigate } from "react-router-dom"
-import { AuthGuard } from "../components/Authguard"
+import { AuthGuard } from "../components/Authguard.jsx"
 import { useState, useEffect } from "react"
 import { ArrowLeft, BarChart3, Users, BookOpen, FileText, TrendingUp } from "lucide-react"
 import "./AnalyticsPage.css"
