@@ -1,10 +1,9 @@
 "use client"
 
 import { useNavigate } from "react-router-dom"
-import { AuthGuard } from "../components/Authguard.jsx"
 import { useState, useEffect } from "react"
 import { ArrowLeft, Search, UserPlus, Edit, Eye } from "lucide-react"
-
+import { AuthGuard } from "../components/Authguard"
 // Inline styles
 const styles = {
   container: {
