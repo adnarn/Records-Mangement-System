@@ -3,7 +3,7 @@
 import { useNavigate } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { ArrowLeft, Search, UserPlus, Edit, Eye } from "lucide-react"
-import { AuthGuard } from "../components/Authguard"
+import { AuthGuard } from "../components/AuthGuard"
 // Inline styles
 const styles = {
   container: {

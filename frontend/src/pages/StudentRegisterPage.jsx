@@ -1,7 +1,7 @@
 "use client"
 
 import { useNavigate } from "react-router-dom"
-import { AuthGuard } from "../components/Authguard.jsx"
+import { AuthGuard } from "../components/AuthGuard.jsx"
 import { useState } from "react"
 import { ArrowLeft, Save, UserPlus } from "lucide-react"
 

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { AuthGuard } from "../components/Authguard"
+import { AuthGuard } from "../components/AuthGuard"
 // UI components replaced with standard HTML elements
 import { ArrowLeft, Plus, Search, BookOpen, Edit, Trash2 } from "lucide-react"
 
