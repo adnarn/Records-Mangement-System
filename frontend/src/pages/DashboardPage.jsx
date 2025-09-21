@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../hooks/useAuth"
-import { GraduationCap, Users, FileText, BarChart3, LogOut, UserPlus, BookOpen } from "lucide-react"
+import { GraduationCap, Users, FileText, BarChart3, UserPlus, BookOpen } from "lucide-react"
 import { AuthGuard } from "../components/AuthGuard.jsx"
+import Navbar from "../components/Navbar"
 
 function DashboardContent() {
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
 
   const adminFeatures = [
@@ -75,204 +76,77 @@ function DashboardContent() {
     navigate(href)
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate("/login")
-  }
-
-  const cardStyle = {
-    backgroundColor: '#fff',
-    borderRadius: '0.5rem',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-    transition: 'box-shadow 0.2s ease-in-out',
-    cursor: 'pointer',
-    overflow: 'hidden',
-  }
-
-  const cardHoverStyle = {
-    boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-  }
-
-  const buttonStyle = {
-    display: 'inline-flex',
-    alignItems: 'center',
-    padding: '0.4rem 0.8rem',
-    borderRadius: '0.375rem',
-    border: '1px solid #d1d5db',
-    backgroundColor: 'transparent',
-    color: '#374151',
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  }
-
-  const buttonHoverStyle = {
-    backgroundColor: '#f3f4f6',
-    borderColor: '#9ca3af',
-  }
-
-  const outlineButtonStyle = {
-    width: '100%',
-    marginTop: '1rem',
-    padding: '0.5rem 1rem',
-    borderRadius: '0.375rem',
-    border: '1px solid #d1d5db',
-    backgroundColor: 'transparent',
-    color: '#374151',
-    cursor: 'pointer',
-    transition: 'all 0.2s',
-  }
-
-  const outlineButtonHoverStyle = {
-    backgroundColor: '#f9fafb',
-    borderColor: '#9ca3af',
-  }
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      backgroundColor: '#f9fafb',
-    }}>
-      {/* Header */}
-      <header style={{
-        backgroundColor: '#fff',
-        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-        borderBottom: '1px solid #e5e7eb',
-      }}>
-        <div style={{
-          maxWidth: '80rem',
-          margin: '0 auto',
-          padding: '0 1rem',
-        }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            height: '4rem',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <GraduationCap style={{ height: '2rem', width: '2rem', color: '#2563eb', marginRight: '0.75rem' }} />
-              <h1 style={{
-                fontSize: '1.25rem',
-                fontWeight: 600,
-                color: '#111827',
-                margin: 0,
-              }}>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      {/* <header className="bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <GraduationCap className="h-6 w-6 text-blue-500 mr-3" />
+              <h1 className="text-lg font-bold text-gray-900">
                 Student Records Management System
               </h1>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-              <span style={{ fontSize: '0.875rem', color: '#4b5563' }}>Welcome, {user?.name}</span>
-              <button 
-                onClick={handleLogout}
-                style={buttonStyle}
-                onMouseOver={(e) => Object.assign(e.target.style, buttonHoverStyle)}
-                onMouseOut={(e) => {
-                  e.target.style.backgroundColor = 'transparent';
-                  e.target.style.borderColor = '#d1d5db';
-                }}
+            <div className="flex items-center">
+              <span className="text-sm text-gray-600 mr-4">
+                Welcome, {user?.name}
+              </span>
+              <button
+                className="bg-white hover:bg-gray-100 text-gray-700 font-medium py-2 px-4 border border-gray-300 rounded-md"
               >
-                <LogOut style={{ height: '1rem', width: '1rem', marginRight: '0.5rem' }} />
                 Logout
               </button>
             </div>
           </div>
         </div>
-      </header>
+      </header> */}
 
       {/* Main Content */}
-      <main style={{
-        maxWidth: '80rem',
-        margin: '0 auto',
-        padding: '2rem 1rem',
-      }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{
-            fontSize: '1.5rem',
-            fontWeight: 700,
-            color: '#111827',
-            margin: '0 0 0.5rem 0',
-          }}>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-1">
             {user?.role === "administrator" ? "Administrator Dashboard" : "Student Dashboard"}
           </h2>
-          <p style={{
-            color: '#6b7280',
-            margin: 0,
-          }}>
+          <p className="text-gray-600">
             {user?.role === "administrator"
               ? "Manage student records and generate reports"
               : "Access your academic information and records"}
           </p>
         </div>
 
-        {/* Feature Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-          gap: '1.5rem',
-        }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => {
-            const Icon = feature.icon;
+            const Icon = feature.icon
             return (
               <div
                 key={index}
-                style={{
-                  ...cardStyle,
-                  ':hover': cardHoverStyle,
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.boxShadow = cardHoverStyle.boxShadow;
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.boxShadow = cardStyle.boxShadow;
-                }}
+                className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden cursor-pointer"
                 onClick={() => handleFeatureClick(feature.href)}
               >
-                <div style={{ padding: '1.5rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-                    <div style={{
-                      backgroundColor: feature.color,
-                      padding: '0.5rem',
-                      borderRadius: '0.5rem',
-                      marginRight: '0.75rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}>
-                      <Icon style={{ height: '1.5rem', width: '1.5rem', color: 'white' }} />
+                <div className="p-6">
+                  <div className="flex items-center mb-4">
+                    <div
+                      className="p-2 rounded-lg mr-3 flex-shrink-0"
+                      style={{ backgroundColor: feature.color }}
+                    >
+                      <Icon className="h-6 w-6 text-white" />
                     </div>
-                    <h3 style={{
-                      fontSize: '1.125rem',
-                      fontWeight: 600,
-                      color: '#111827',
-                      margin: 0,
-                    }}>
+                    <h3 className="text-lg font-semibold text-gray-900">
                       {feature.title}
                     </h3>
                   </div>
-                  <p style={{
-                    color: '#6b7280',
-                    fontSize: '0.875rem',
-                    margin: '0.5rem 0 1rem 0',
-                  }}>
+                  <p className="text-gray-600 text-sm mb-4">
                     {feature.description}
                   </p>
                   <button
-                    style={{
-                      ...outlineButtonStyle,
-                      ':hover': outlineButtonHoverStyle,
-                    }}
-                    onMouseOver={(e) => Object.assign(e.target.style, outlineButtonHoverStyle)}
-                    onMouseOut={(e) => {
-                      e.target.style.backgroundColor = 'transparent';
-                      e.target.style.borderColor = '#d1d5db';
-                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                   >
                     Access Module
                   </button>
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       </main>
